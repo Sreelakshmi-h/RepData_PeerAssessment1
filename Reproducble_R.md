@@ -1,13 +1,11 @@
----
-output:
-  html_document:
-  keep_md: TRUE
----
-# Reproducible Research: Week 2 Programming Assignment
 
-## Loading the csv file and summary
+Reproducible Research: Week 2 Programming Assignment
+====================================================
 
-```{r}
+Loading the csv file and summary
+--------------------------------
+
+``` {r}
 library(ggplot2)
 unzip("activity.zip")
 dataSet<- read.csv("activity.csv")
@@ -16,11 +14,12 @@ dim(dataSet)
 summary(dataSet)
 ```
 
-## 1.What is mean total number of steps taken per day?
+1.What is mean total number of steps taken per day?
+---------------------------------------------------
 
 ### Number of steps per day
 
-```{r}
+``` {r}
 SummedDataByDay <- aggregate(dataSet$steps, by=list(dataSet$date), sum)
 names(SummedDataByDay)[1] ="date"
 names(SummedDataByDay)[2] ="totalsteps"
@@ -29,7 +28,7 @@ head(SummedDataByDay,10)
 
 ### Make a histogram of the total number of steps taken each day
 
-```{r}
+``` {r}
 ggplot(SummedDataByDay, aes(x = totalsteps)) +
   geom_histogram(fill = "darkgreen", binwidth=1000) +
   labs(title = "Total No. of Steps per Day", x = "Steps", y = "Frequency")
@@ -37,19 +36,20 @@ ggplot(SummedDataByDay, aes(x = totalsteps)) +
 
 ### Calculate and report the mean and median of the total number of steps taken per day
 
-```{r}
+``` {r}
 mean(SummedDataByDay$totalsteps,na.rm=TRUE)
 ```
 
-```{r}
+``` {r}
 median(SummedDataByDay$totalsteps,na.rm=TRUE)
 ```
 
-## 2.What is the average daily activity pattern?
+2.What is the average daily activity pattern?
+---------------------------------------------
 
 ### Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r}
+``` {r}
 dataSetNA <- is.na(dataSet$steps)
 cleanBase <- dataSet[!dataSetNA,]
 
@@ -66,24 +66,26 @@ ggplot(MeanDataByInterval, aes(x = Interval, y=Steps)) +
 
 ### Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
+``` {r}
 maxInterval <- MeanDataByInterval[which(MeanDataByInterval$Steps==max(MeanDataByInterval$Steps)),]
 maxInterval
 ```
 
-## 3.Imputing missing values
+3.Imputing missing values
+-------------------------
 
-### Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with \color{red}{\verb|NA|}NAs)
+### Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
-```{r}
+``` {r}
 missingValues <- sum(dataSetNA)
 missingValues
 ```
 
 ### Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
-###Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r}
+### Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+``` {r}
 library(magrittr)
 library(dplyr)
 
@@ -92,9 +94,9 @@ MeanData <- dataSet%>% group_by(interval) %>% mutate(steps= ReplaceWithMean(step
 head(MeanData)
 ```
 
-### Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. 
+### Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
 
-```{r}
+``` {r}
 FullSummedDataByDay <- aggregate(MeanData$steps, by=list(MeanData$date), sum)
 names(FullSummedDataByDay)[1] ="Date"
 names(FullSummedDataByDay)[2] ="TotalSteps"
@@ -103,32 +105,35 @@ head(FullSummedDataByDay,15)
 
 ### Summary of new data : mean & median
 
-```{r}
+``` {r}
 summary(FullSummedDataByDay)
 ```
 
 ### Making a histogram
 
-```{r}
+``` {r}
 hist(FullSummedDataByDay$TotalSteps, xlab = "Steps", ylab = "Frequency", main = "Total Daily Steps", breaks = 20, col="steelblue")
 ```
 
 ### Comparing the mean and median of Old and New data
 
-```{r}
+``` {r}
 mean(FullSummedDataByDay$TotalSteps)
 median(FullSummedDataByDay$TotalSteps)
 ```
 
 ### Do these values differ from the estimates from the first part of the assignment?
+
 Yes, the mean is the same but the median has risen 1.19 steps.
 
 ### What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
 The effect of using mean data per interval as a data impute method for missing values has increased overall data towards the mean.
 
-## Are there differences in activity patterns between weekdays and weekends?
+Are there differences in activity patterns between weekdays and weekends?
+-------------------------------------------------------------------------
 
-```{r}
+``` {r}
 library(ggplot2)
 MeanData$date <- as.Date(MeanData$date)
 MeanData$weekday <- weekdays(MeanData$date)
